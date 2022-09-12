@@ -5,6 +5,7 @@ node {
     stage('Build') {
         docker.image('python:2-alpine').inside {
             sh 'python -m py_compile sources/add2vals.py sources/calc.py'
+            stash(name: 'compiled-results', includes: 'sources/*.py*')
         }
     }
     stage('Test') {
@@ -28,8 +29,8 @@ node {
 
         } finally {
             // post success
-            // archiveArtifacts 'dist/add2vals'
-            archiveArtifacts 'sources/dist/add2vals' 
+            archiveArtifacts 'dist/add2vals'
+            // archiveArtifacts 'sources/dist/add2vals' 
         }
 
     }

@@ -29,6 +29,7 @@ node {
 
         } finally {
             // post success
+            unstash(name: 'compiled-results')
             archiveArtifacts 'dist/add2vals'
             // archiveArtifacts 'sources/dist/add2vals' 
         }

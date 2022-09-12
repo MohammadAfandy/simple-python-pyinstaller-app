@@ -1,12 +1,16 @@
+// must install "docker pipeline" and "junit" plugin
+
 node {
     stage('Build') {
-        sh 'docker run python:2-alpine'
-        sh 'python -m py_compile sources/add2vals.py sources/calc.py'
+        docker.image('python:2-alpine').inside {
+            sh 'python -m py_compile sources/add2vals.py sources/calc.py'
+        }
     }
     stage('Test') {
         try {
-            sh 'docker run qnib/pytest'
-            sh 'py.test --verbose --junit-xml test-reports/results.xml sources/test_calc.py'
+            docker.image('qnib/pytest').inside {
+                sh 'py.test --verbose --junit-xml test-reports/results.xml sources/test_calc.py'
+            }
         } catch (e) {
 
         } finally {
@@ -15,14 +19,11 @@ node {
         }
     }
     stage('Deliver') {
-        try {
-            sh 'docker run cdrx/pyinstaller-linux:python2'
+        docker.image('cdrx/pyinstaller-linux:python2').inside {
             sh 'pyinstaller --onefile sources/add2vals.py'
-
-            // post success
-            archiveArtifacts 'dist/add2vals'
-        } catch (e) {
-
         }
+
+        // post success
+        archiveArtifacts 'dist/add2vals'
     }
 }
